@@ -9,18 +9,18 @@
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 
-extern void libc_qsort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void bsd_qsort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void bubble_sort(void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void heap_sort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void insert_sort(void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void libc_qsort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void bsd_qsort   (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void bubble_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void heap_sort   (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void insert_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 extern void insert_sort1(void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void merge_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void quick_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void selec_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-extern void shell_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void merge_sort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void quick_sort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void selec_sort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void shell_sort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 extern void rbtree_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
-
+extern void comb_sort   (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 
 typedef void (*SORT_TYPE)(void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 
@@ -36,12 +36,13 @@ static FUNCTION func[] = {
     {"heap_sort",   heap_sort},
     {"merge_sort",  merge_sort},
     {"insert_sort", insert_sort},
-    {"insert_sort1", insert_sort1},
+    {"insert_sort1",insert_sort1},
     {"shell_sort",  shell_sort},
     {"selec_sort",  selec_sort},
     {"bubble_sort", bubble_sort},
     {"rbtree_sort", rbtree_sort},
-    {"glibc_qsort", qsort}
+    {"glibc_qsort", qsort},
+    {"comb_sort", comb_sort}
 };
 
 typedef struct SORT_INFO {
@@ -49,15 +50,12 @@ typedef struct SORT_INFO {
     double        elapsed;
 } SORT_INFO;
 
-static int cmpNums(const void *a, const void *b) {
+static int cmp_nums(const void *a, const void *b) {
    return ( *(size_t *)a - *(size_t *)b );
 }
 
-static int cmpTime(const void *a, const void *b) {
-    if (((SORT_INFO *)a)->elapsed > ((SORT_INFO *)b)->elapsed)
-        return 1;
-    else 
-        return -1;
+static int cmp_time(const void *a, const void *b) {
+    return (((SORT_INFO *)a)->elapsed > ((SORT_INFO *)b)->elapsed) ?  1 : -1;
 }
 
 
@@ -88,18 +86,17 @@ static void test_func(size_t *nums) {
 
     for (i = 0; i < n; i++) {
         gettimeofday(&start, NULL);
-        func[i].func(nums, COUNTS, sizeof(size_t), cmpNums);
+        func[i].func(nums, COUNTS, sizeof(size_t), cmp_nums);
         gettimeofday(&end, NULL);
 
         table[i].name = func[i].name;
         table[i].elapsed = end.tv_sec - start.tv_sec + (end.tv_usec - start.tv_usec) / 1000000.f;
-
-        assert(is_sorted(nums, COUNTS, sizeof(size_t), cmpNums));
+        assert(is_sorted(nums, COUNTS, sizeof(size_t), cmp_nums));
         memcpy(nums, bak, COUNTS * sizeof(size_t));     /* recover */
     }
 
     /* rank by elapsed time */
-    rbtree_sort(table, n, sizeof(SORT_INFO), cmpTime);
+    rbtree_sort(table, n, sizeof(SORT_INFO), cmp_time);
     for (i = 0; i < n; i++)
         printf("%s\t%.7f seconds\n", table[i].name, table[i].elapsed);
 
@@ -128,7 +125,7 @@ size_t *get_raw_rand(size_t *nums, size_t n) {
 }
 
 /* 
- *Generate a lot of repeated values,
+ * generate a lot of repeated values,
  * distributed between [l - h) 
  */
 size_t *get_range_rand(size_t *nums, size_t n, size_t l, size_t h) {
@@ -176,15 +173,13 @@ static void test1(FUNCTION sort) {
     printf(" ======== %s ========\n", sort.name);
     print(nums, n);
 
-    sort.func(nums, n, sizeof(size_t), cmpNums);
+    sort.func(nums, n, sizeof(size_t), cmp_nums);
+    assert(is_sorted(nums, n, sizeof(size_t), cmp_nums));
 
     print(nums, n);
 
-
     printf("\n");
-
     free(nums);
-
 }
 
 static inline void test0() {
@@ -196,7 +191,7 @@ static inline void test0() {
 
 int main() {
 
-    // test0();
+    test0();
     test2();
 
     return 0;

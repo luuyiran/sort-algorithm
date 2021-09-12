@@ -1,9 +1,7 @@
 #include <assert.h>     /* define assert */
 #include <stddef.h>     /* define NULL */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 
 /* 获取自定义结构的地址 */
