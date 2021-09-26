@@ -21,6 +21,7 @@ extern void selec_sort  (void *a, size_t n, size_t es, int (*cmp)(const void *, 
 extern void shell_sort  (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 extern void rbtree_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 extern void comb_sort   (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
+extern void skplst_sort (void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 
 typedef void (*SORT_TYPE)(void *a, size_t n, size_t es, int (*cmp)(const void *, const void *));
 
@@ -42,7 +43,8 @@ static FUNCTION func[] = {
     {"bubble_sort", bubble_sort},
     {"rbtree_sort", rbtree_sort},
     {"glibc_qsort", qsort},
-    {"comb_sort", comb_sort}
+    {"comb_sort",   comb_sort},
+    {"skplst_sort", skplst_sort}
 };
 
 typedef struct SORT_INFO {
