@@ -20,6 +20,7 @@ static inline void swap(void *a, void *b, size_t size) {
 
 static inline void shift_down(void *a, size_t n, size_t k, size_t es, int (*cmp)(const void *, const void *)) {
     size_t j;
+    /* left(k) = 2*k+1 */
     while (2 * k + 1 < n) {
         j = 2 * k + 1;
         if (j + 1 < n && _CMP(j + 1, j) > 0)
@@ -37,12 +38,15 @@ void heap_sort(void *a, size_t n, size_t es, int (*cmp)(const void *, const void
     assert(a != NULL || n == 0 || es == 0);
     assert(cmp != NULL);
 
-    /* heapify -> max heap */
+    /* heapify -> max heap 
+       parent(n) = (n-1)/2
+    */
     for (i = (n - 1) / 2; i >= 0; i--) {
         shift_down(a, n, i, es, cmp);
     }
 
     for (i = n - 1; i > 0; i--) {
+        /* get max elment at index 0, fill it by last element */
         _SWAP(0, i);
         shift_down(a, i, 0, es, cmp);
     }
